@@ -6,6 +6,7 @@ const passport = require("passport");
 const authRouter = require("./routes/auth");
 const passportStrategy = require("./passport");
 const session = require("express-session");
+const quizRouter = require("./routes/tests");
 const app = express();
 
 // Middleware
@@ -15,7 +16,6 @@ app.use(
     secret: "anything",
     resave: false,
     saveUninitialized: true,
-    // cookie: { secure: true },
   })
 );
 
@@ -24,7 +24,7 @@ app.use(passport.session());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
@@ -32,7 +32,7 @@ app.use(
 
 // Routes
 app.use("/auth", authRouter);
-
+app.use("/tests", quizRouter);
 // Server Default Route
 app.get("/", (req, res) => {
   res.send("Hey..! Welcome to Quiz Test Server side.");

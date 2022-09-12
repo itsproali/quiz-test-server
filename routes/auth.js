@@ -3,11 +3,12 @@ const passport = require("passport");
 const mongodb = require("../features/mongodb");
 
 async function run() {
-    const userCollection = await mongodb.collection("users");
-    try {
-      
-        // Log In
+  const userCollection = await mongodb.collection("users");
+
+  try {
+    // Log In
     authRouter.get("/login/success", async (req, res) => {
+      console.log(req.user);
       if (req.user) {
         const { email, name, picture, sub } = req.user?._json;
         const exist = await userCollection.findOne({ email });
@@ -19,34 +20,31 @@ async function run() {
             sub,
           });
         }
-        res.status(200).json({
+        res.status(200).send({
           error: false,
           message: "Successfully Logged In",
           user: req.user._json,
         });
       } else {
-        res
-          .status(403)
-          .json({ error: true, message: "Not Authorized" })
-          .redirect(process.env.CLIENT_URL);
+        res.send({ error: true, message: "Not Authorized" });
       }
     });
 
-        // Log In Failed
+    // Log In Failed
     authRouter.get("/login/failed", (req, res) => {
-      res.status(401).json({
+      res.status(401).send({
         error: true,
         message: "Log in failure",
       });
     });
 
-        // Authentication with Google
+    // Authentication with Google
     authRouter.get(
       "/google",
       passport.authenticate("google", ["profile", "email"])
     );
 
-        // Google Authentication Callback
+    // Google Authentication Callback
     authRouter.get(
       "/google/callback",
       passport.authenticate("google", {
@@ -57,7 +55,6 @@ async function run() {
 
     // User LogOut
     authRouter.get("/logout", (req, res) => {
-      console.log(req.logOut);
       req.logout(function (err) {
         if (err) {
           return next(err);
